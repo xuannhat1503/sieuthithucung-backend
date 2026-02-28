@@ -1,0 +1,37 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create .env từ GitHub Secrets
+        run: |
+          cp .env.example .env
+          sed -i "s|APP_KEY=|APP_KEY=${{ secrets.APP_KEY }}|" .env
+          sed -i "s|DB_HOST=127.0.0.1|DB_HOST=${{ secrets.DB_HOST }}|" .env
+          sed -i "s|DB_PORT=3306|DB_PORT=${{ secrets.DB_PORT }}|" .env
+          sed -i "s|DB_DATABASE=your_database|DB_DATABASE=${{ secrets.DB_DATABASE }}|" .env
+          sed -i "s|DB_USERNAME=your_username|DB_USERNAME=${{ secrets.DB_USERNAME }}|" .env
+          sed -i "s|DB_PASSWORD=your_password|DB_PASSWORD=${{ secrets.DB_PASSWORD }}|" .env
+
+      - name: Generate APP_KEY (nếu chưa có)
+        run: php artisan key:generate --force
+
+      - name: Run Migrations
+        run: php artisan migrate --force
