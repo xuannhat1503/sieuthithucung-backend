@@ -97,6 +97,21 @@ keytool -importcert -alias mysql-ca -file ca.pem -keystore certs\mysql-truststor
 
 Alternative: set full DB_URL containing the same truststore parameters.
 
+## Railway Runtime Fix (php: command not found)
+
+If Railway logs show `/bin/bash: line 1: php: command not found`, your service is using an old PHP start command.
+
+This backend is Java Spring Boot, and repo now includes:
+
+- `nixpacks.toml` (build with Maven)
+- `Procfile` (start with Java)
+
+Expected start command:
+
+`java -Dserver.port=$PORT -jar target/*.jar`
+
+In Railway UI, remove old custom Start Command (if any) like `php ...`, then redeploy.
+
 ## Dummy Data SQL
 
 Dummy data file is available at `dummy-data.sql`.
