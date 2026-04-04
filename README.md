@@ -112,6 +112,24 @@ Expected start command:
 
 In Railway UI, remove old custom Start Command (if any) like `php ...`, then redeploy.
 
+## If Service Still Crashes
+
+Check Railway runtime logs after redeploy. Common causes:
+
+1. Missing runnable jar:
+- Now fixed by `Procfile` and `nixpacks.toml` (auto-picks non-`*.original` jar).
+
+2. Wrong DB variables:
+- Required: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
+- For Aiven/Railway MySQL: usually `DB_SSL_MODE=REQUIRED`
+
+3. SSL truststore path invalid (when using VERIFY_CA):
+- `DB_URL_EXTRA_PARAMS` must point to an existing file in container.
+- If unsure, start with `DB_SSL_MODE=REQUIRED` (without VERIFY_CA), confirm app is up, then switch to VERIFY_CA.
+
+4. Port binding:
+- App now uses `server.port=${PORT:8080}`.
+
 ## Dummy Data SQL
 
 Dummy data file is available at `dummy-data.sql`.
