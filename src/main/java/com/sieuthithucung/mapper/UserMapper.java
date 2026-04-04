@@ -1,15 +1,42 @@
 package com.sieuthithucung.mapper;
 
-import tools.jackson.databind.ObjectMapper;
 import com.sieuthithucung.dto.UserDto;
 import com.sieuthithucung.entity.UserEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class UserMapper extends BaseMapper<UserEntity, UserDto> {
+public class UserMapper {
+    public static UserDto mapToUserDto(UserEntity entity) {
+        return new UserDto(
+                entity.getId(),
+                entity.getName(),
+                entity.getEmail(),
+                entity.getPassword(),
+                entity.getStatus(),
+                entity.getPhoneNumber(),
+                entity.getAvatar(),
+                entity.getAddress(),
+                entity.getRoleId(),
+                entity.getActivationToken(),
+                entity.getGoogleId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public UserMapper(ObjectMapper objectMapper) {
-        super(objectMapper, UserEntity.class, UserDto.class);
+    public static UserEntity mapToUserEntity(UserDto dto) {
+        return new UserEntity(
+                dto.getId(),
+                dto.getName(),
+                dto.getEmail(),
+                dto.getPassword(),
+                dto.getStatus(),
+                dto.getPhoneNumber(),
+                dto.getAvatar(),
+                dto.getAddress(),
+                dto.getRoleId(),
+                dto.getActivationToken(),
+                dto.getGoogleId(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

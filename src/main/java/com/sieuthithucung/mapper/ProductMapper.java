@@ -1,15 +1,38 @@
 package com.sieuthithucung.mapper;
 
-import tools.jackson.databind.ObjectMapper;
 import com.sieuthithucung.dto.ProductDto;
 import com.sieuthithucung.entity.ProductEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ProductMapper extends BaseMapper<ProductEntity, ProductDto> {
+public class ProductMapper {
+    public static ProductDto mapToProductDto(ProductEntity entity) {
+        return new ProductDto(
+                entity.getId(),
+                entity.getName(),
+                entity.getSlug(),
+                entity.getCategoryId(),
+                entity.getDescription(),
+                entity.getPrice(),
+                entity.getStock(),
+                entity.getStatus(),
+                entity.getUnit(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public ProductMapper(ObjectMapper objectMapper) {
-        super(objectMapper, ProductEntity.class, ProductDto.class);
+    public static ProductEntity mapToProductEntity(ProductDto dto) {
+        return new ProductEntity(
+                dto.getId(),
+                dto.getName(),
+                dto.getSlug(),
+                dto.getCategoryId(),
+                dto.getDescription(),
+                dto.getPrice(),
+                dto.getStock(),
+                dto.getStatus(),
+                dto.getUnit(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

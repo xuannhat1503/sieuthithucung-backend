@@ -1,15 +1,30 @@
 package com.sieuthithucung.mapper;
 
-import tools.jackson.databind.ObjectMapper;
 import com.sieuthithucung.dto.CategoryDto;
 import com.sieuthithucung.entity.CategoryEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class CategoryMapper extends BaseMapper<CategoryEntity, CategoryDto> {
+public class CategoryMapper {
+    public static CategoryDto mapToCategoryDto(CategoryEntity entity) {
+        return new CategoryDto(
+                entity.getId(),
+                entity.getName(),
+                entity.getSlug(),
+                entity.getDescription(),
+                entity.getImage(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public CategoryMapper(ObjectMapper objectMapper) {
-        super(objectMapper, CategoryEntity.class, CategoryDto.class);
+    public static CategoryEntity mapToCategoryEntity(CategoryDto dto) {
+        return new CategoryEntity(
+                dto.getId(),
+                dto.getName(),
+                dto.getSlug(),
+                dto.getDescription(),
+                dto.getImage(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

@@ -1,15 +1,24 @@
 package com.sieuthithucung.mapper;
 
-import tools.jackson.databind.ObjectMapper;
 import com.sieuthithucung.dto.RoleDto;
 import com.sieuthithucung.entity.RoleEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class RoleMapper extends BaseMapper<RoleEntity, RoleDto> {
+public class RoleMapper {
+    public static RoleDto mapToRoleDto(RoleEntity entity) {
+        return new RoleDto(
+                entity.getId(),
+                entity.getName(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public RoleMapper(ObjectMapper objectMapper) {
-        super(objectMapper, RoleEntity.class, RoleDto.class);
+    public static RoleEntity mapToRoleEntity(RoleDto dto) {
+        return new RoleEntity(
+                dto.getId(),
+                dto.getName(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

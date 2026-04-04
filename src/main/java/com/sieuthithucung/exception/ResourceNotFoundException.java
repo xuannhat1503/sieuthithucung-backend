@@ -1,4 +1,4 @@
-package com.sieuthithucung.common;
+package com.sieuthithucung.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 
@@ -6,4 +6,3 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
 }
-

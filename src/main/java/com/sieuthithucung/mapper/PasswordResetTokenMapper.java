@@ -2,14 +2,21 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.PasswordResetTokenDto;
 import com.sieuthithucung.entity.PasswordResetTokenEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class PasswordResetTokenMapper extends BaseMapper<PasswordResetTokenEntity, PasswordResetTokenDto> {
+public class PasswordResetTokenMapper {
+    public static PasswordResetTokenDto mapToPasswordResetTokenDto(PasswordResetTokenEntity entity) {
+        return new PasswordResetTokenDto(
+                entity.getEmail(),
+                entity.getToken(),
+                entity.getCreatedAt()
+        );
+    }
 
-    public PasswordResetTokenMapper(ObjectMapper objectMapper) {
-        super(objectMapper, PasswordResetTokenEntity.class, PasswordResetTokenDto.class);
+    public static PasswordResetTokenEntity mapToPasswordResetTokenEntity(PasswordResetTokenDto dto) {
+        return new PasswordResetTokenEntity(
+                dto.getEmail(),
+                dto.getToken(),
+                dto.getCreatedAt()
+        );
     }
 }
-

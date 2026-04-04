@@ -2,14 +2,33 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.PaymentDto;
 import com.sieuthithucung.entity.PaymentEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class PaymentMapper extends BaseMapper<PaymentEntity, PaymentDto> {
+public class PaymentMapper {
+    public static PaymentDto mapToPaymentDto(PaymentEntity entity) {
+        return new PaymentDto(
+                entity.getId(),
+                entity.getOrderId(),
+                entity.getPaymentMethod(),
+                entity.getTransactionId(),
+                entity.getStatus(),
+                entity.getPaidAy(),
+                entity.getAmount(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public PaymentMapper(ObjectMapper objectMapper) {
-        super(objectMapper, PaymentEntity.class, PaymentDto.class);
+    public static PaymentEntity mapToPaymentEntity(PaymentDto dto) {
+        return new PaymentEntity(
+                dto.getId(),
+                dto.getOrderId(),
+                dto.getPaymentMethod(),
+                dto.getTransactionId(),
+                dto.getStatus(),
+                dto.getPaidAy(),
+                dto.getAmount(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

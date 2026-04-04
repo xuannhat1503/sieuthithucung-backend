@@ -2,14 +2,27 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.CartItemDto;
 import com.sieuthithucung.entity.CartItemEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class CartItemMapper extends BaseMapper<CartItemEntity, CartItemDto> {
+public class CartItemMapper {
+    public static CartItemDto mapToCartItemDto(CartItemEntity entity) {
+        return new CartItemDto(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getProductId(),
+                entity.getQuantity(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public CartItemMapper(ObjectMapper objectMapper) {
-        super(objectMapper, CartItemEntity.class, CartItemDto.class);
+    public static CartItemEntity mapToCartItemEntity(CartItemDto dto) {
+        return new CartItemEntity(
+                dto.getId(),
+                dto.getUserId(),
+                dto.getProductId(),
+                dto.getQuantity(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

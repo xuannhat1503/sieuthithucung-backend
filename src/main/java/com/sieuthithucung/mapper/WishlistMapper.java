@@ -2,14 +2,25 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.WishlistDto;
 import com.sieuthithucung.entity.WishlistEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class WishlistMapper extends BaseMapper<WishlistEntity, WishlistDto> {
+public class WishlistMapper {
+    public static WishlistDto mapToWishlistDto(WishlistEntity entity) {
+        return new WishlistDto(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getProductId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public WishlistMapper(ObjectMapper objectMapper) {
-        super(objectMapper, WishlistEntity.class, WishlistDto.class);
+    public static WishlistEntity mapToWishlistEntity(WishlistDto dto) {
+        return new WishlistEntity(
+                dto.getId(),
+                dto.getUserId(),
+                dto.getProductId(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

@@ -1,15 +1,32 @@
 package com.sieuthithucung.mapper;
 
-import tools.jackson.databind.ObjectMapper;
 import com.sieuthithucung.dto.OrderItemDto;
 import com.sieuthithucung.entity.OrderItemEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class OrderItemMapper extends BaseMapper<OrderItemEntity, OrderItemDto> {
+public class OrderItemMapper {
+    public static OrderItemDto mapToOrderItemDto(OrderItemEntity entity) {
+        return new OrderItemDto(
+                entity.getId(),
+                entity.getOrderId(),
+                entity.getProductId(),
+                entity.getUserId(),
+                entity.getQuantity(),
+                entity.getPrice(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public OrderItemMapper(ObjectMapper objectMapper) {
-        super(objectMapper, OrderItemEntity.class, OrderItemDto.class);
+    public static OrderItemEntity mapToOrderItemEntity(OrderItemDto dto) {
+        return new OrderItemEntity(
+                dto.getId(),
+                dto.getOrderId(),
+                dto.getProductId(),
+                dto.getUserId(),
+                dto.getQuantity(),
+                dto.getPrice(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

@@ -2,14 +2,25 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.ProductImageDto;
 import com.sieuthithucung.entity.ProductImageEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class ProductImageMapper extends BaseMapper<ProductImageEntity, ProductImageDto> {
+public class ProductImageMapper {
+    public static ProductImageDto mapToProductImageDto(ProductImageEntity entity) {
+        return new ProductImageDto(
+                entity.getId(),
+                entity.getProductId(),
+                entity.getImage(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public ProductImageMapper(ObjectMapper objectMapper) {
-        super(objectMapper, ProductImageEntity.class, ProductImageDto.class);
+    public static ProductImageEntity mapToProductImageEntity(ProductImageDto dto) {
+        return new ProductImageEntity(
+                dto.getId(),
+                dto.getProductId(),
+                dto.getImage(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-

@@ -2,14 +2,25 @@ package com.sieuthithucung.mapper;
 
 import com.sieuthithucung.dto.RolePermissionDto;
 import com.sieuthithucung.entity.RolePermissionEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-public class RolePermissionMapper extends BaseMapper<RolePermissionEntity, RolePermissionDto> {
+public class RolePermissionMapper {
+    public static RolePermissionDto mapToRolePermissionDto(RolePermissionEntity entity) {
+        return new RolePermissionDto(
+                entity.getId(),
+                entity.getRoleId(),
+                entity.getPermissionId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 
-    public RolePermissionMapper(ObjectMapper objectMapper) {
-        super(objectMapper, RolePermissionEntity.class, RolePermissionDto.class);
+    public static RolePermissionEntity mapToRolePermissionEntity(RolePermissionDto dto) {
+        return new RolePermissionEntity(
+                dto.getId(),
+                dto.getRoleId(),
+                dto.getPermissionId(),
+                dto.getCreatedAt(),
+                dto.getUpdatedAt()
+        );
     }
 }
-
