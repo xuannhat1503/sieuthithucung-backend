@@ -35,3 +35,8 @@ build/
 ### Visual Studio ###
 .vs/
 
+### Runtime / Local ###
+uploads/
+.env
+.env.*
+
