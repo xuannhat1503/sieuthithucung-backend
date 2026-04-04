@@ -29,9 +29,16 @@ Default config uses MySQL database `sieuthithucung` in `src/main/resources/appli
 
 Use these variables when deploying or before pushing to shared environments:
 
-- DB_URL
+- DB_URL (optional, full JDBC URL)
+- DB_HOST
+- DB_PORT
+- DB_NAME
 - DB_USERNAME
 - DB_PASSWORD
+- DB_SSL_MODE
+- DB_ALLOW_PUBLIC_KEY_RETRIEVAL
+- DB_SERVER_TIMEZONE
+- DB_URL_EXTRA_PARAMS
 - JPA_DDL_AUTO
 - APP_CORS_ALLOWED_ORIGIN
 - APP_UPLOAD_DIR
@@ -50,6 +57,45 @@ Notes:
 - Admin seed is disabled by default.
 - To auto-create admin account, set APP_ADMIN_SEED_ENABLED=true and provide APP_ADMIN_SEED_EMAIL + APP_ADMIN_SEED_PASSWORD.
 - Runtime uploads are ignored by git via uploads/ in .gitignore.
+
+## Railway DB Setup
+
+For your MySQL service (SSL REQUIRED), set Railway variables like this:
+
+- DB_HOST=sieuthithucung-sieuthithucung.i.aivencloud.com
+- DB_PORT=28896
+- DB_NAME=defaultdb
+- DB_USERNAME=avnadmin
+- DB_PASSWORD=<your-real-password>
+- DB_SSL_MODE=REQUIRED
+- DB_ALLOW_PUBLIC_KEY_RETRIEVAL=true
+- DB_SERVER_TIMEZONE=UTC
+
+Then deploy/restart service on Railway.
+
+If you prefer one variable only, set DB_URL in JDBC format:
+
+`jdbc:mysql://sieuthithucung-sieuthithucung.i.aivencloud.com:28896/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC`
+
+## SSL with ca.pem (Railway)
+
+Java MySQL driver verifies CA via truststore (JKS/PKCS12), not raw pem path directly.
+
+1. Put your `ca.pem` in project root (you already have `Backend/ca.pem`).
+2. Create truststore from pem:
+
+```powershell
+keytool -importcert -alias mysql-ca -file ca.pem -keystore certs\mysql-truststore.jks -storepass changeit -noprompt
+```
+
+3. Set Railway variables:
+
+- DB_SSL_MODE=VERIFY_CA
+- DB_URL_EXTRA_PARAMS=&trustCertificateKeyStoreUrl=file:/app/certs/mysql-truststore.jks&trustCertificateKeyStorePassword=changeit&trustCertificateKeyStoreType=JKS
+
+4. Keep the usual DB_HOST/DB_PORT/DB_NAME/DB_USERNAME/DB_PASSWORD values.
+
+Alternative: set full DB_URL containing the same truststore parameters.
 
 ## Dummy Data SQL
 
