@@ -112,6 +112,40 @@ Expected start command:
 
 In Railway UI, remove old custom Start Command (if any) like `php ...`, then redeploy.
 
+## Deploy by Dockerfile (Recommended)
+
+This repo now includes:
+
+- `Dockerfile` (multi-stage build: Maven -> Java runtime)
+- `.dockerignore` (smaller build context)
+
+To deploy on Railway with Docker:
+
+1. In Railway service settings, use Dockerfile build (or leave auto-detect if Dockerfile is present).
+2. Remove any custom Start Command in Railway UI.
+3. Set environment variables:
+
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USERNAME
+- DB_PASSWORD
+- DB_SSL_MODE (use `REQUIRED` first)
+- DB_ALLOW_PUBLIC_KEY_RETRIEVAL
+- DB_SERVER_TIMEZONE
+- DB_URL_EXTRA_PARAMS (optional)
+
+4. Redeploy.
+
+For VERIFY_CA mode with your `Backend/ca.pem`:
+
+- Dockerfile imports `ca.pem` into `/app/certs/mysql-truststore.jks` during image build.
+- Set:
+
+`DB_SSL_MODE=VERIFY_CA`
+
+`DB_URL_EXTRA_PARAMS=&trustCertificateKeyStoreUrl=file:/app/certs/mysql-truststore.jks&trustCertificateKeyStorePassword=changeit&trustCertificateKeyStoreType=JKS`
+
 ## If Service Still Crashes
 
 Check Railway runtime logs after redeploy. Common causes:
