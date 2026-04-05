@@ -2,20 +2,15 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function test_example()
+    public function test_client_auth_routes_are_registered()
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        $this->assertTrue(Route::has('api.auth.register'));
+        $this->assertTrue(Route::has('api.auth.login'));
+        $this->assertTrue(Route::has('api.account.summary'));
     }
 }
