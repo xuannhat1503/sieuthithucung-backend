@@ -8,6 +8,7 @@ import com.sieuthithucung.repository.RoleRepository;
 import com.sieuthithucung.repository.UserRepository;
 import com.sieuthithucung.service.AdminAuthService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,11 +25,13 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final Map<String, AdminSession> sessions = new ConcurrentHashMap<>();
 
-    public AdminAuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public AdminAuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public AdminLoginResponseDto login(AdminLoginRequestDto request) {
@@ -39,7 +42,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         UserEntity user = userRepository.findByEmail(request.getEmail().trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sai thong tin dang nhap"));
 
-        if (!request.getPassword().equals(user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sai thong tin dang nhap");
         }
 

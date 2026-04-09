@@ -1,6 +1,7 @@
 package com.sieuthithucung.service.impl;
 
 import com.sieuthithucung.dto.UserDto;
+import com.sieuthithucung.dto.UserRegisterDto;
 import com.sieuthithucung.entity.UserEntity;
 import com.sieuthithucung.exception.ResourceNotFoundException;
 import com.sieuthithucung.mapper.UserMapper;
@@ -9,9 +10,11 @@ import com.sieuthithucung.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,9 +23,11 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, BCryptPasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -51,6 +56,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAll() {
         return getAllInternal().stream().map(this::sanitize).toList();
+    }
+
+    @Override
+    public UserDto register(UserRegisterDto registerDto) {
+        if (registerDto == null || isBlank(registerDto.getName()) || 
+            isBlank(registerDto.getEmail()) || isBlank(registerDto.getPassword())) {
+            throw new IllegalArgumentException("Name, email, and password are required");
+        }
+
+        if (repository.findByEmail(registerDto.getEmail().trim()).isPresent()) {
+            throw new IllegalArgumentException("Email da duoc dang ky");
+        }
+
+        UserEntity entity = new UserEntity();
+        entity.setName(registerDto.getName().trim());
+        entity.setEmail(registerDto.getEmail().trim());
+        entity.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        entity.setPhoneNumber(registerDto.getPhoneNumber());
+        entity.setAddress(registerDto.getAddress());
+        entity.setStatus("active");
+        entity.setRoleId(3L);
+        entity.setCreatedAt(LocalDateTime.now());
+
+        UserEntity saved = repository.save(entity);
+        return sanitize(UserMapper.mapToUserDto(saved));
     }
 
     private UserDto createInternal(UserDto dto) {
@@ -99,6 +129,10 @@ public class UserServiceImpl implements UserService {
             }
         }
         return emptyNames.toArray(new String[0]);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
 
