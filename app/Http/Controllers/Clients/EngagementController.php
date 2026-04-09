@@ -138,7 +138,7 @@ class EngagementController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => 'Vui long dang nhap truoc khi luu wishlist.',
+                'message' => 'Vui lòng đăng nhập trước khi lưu wishlist.',
             ], 401);
         }
 
@@ -149,18 +149,34 @@ class EngagementController extends Controller
         $product = Product::query()->find($validated['product_id']);
         if (!$product) {
             return response()->json([
-                'message' => 'Khong tim thay san pham.',
+                'message' => 'Không tìm thấy sản phẩm.',
             ], 404);
         }
 
-        $wishlist = Wishlist::query()->firstOrCreate([
+        $wishlist = Wishlist::query()
+            ->where('user_id', $user->id)
+            ->where('product_id', $product->id)
+            ->first();
+
+        if ($wishlist) {
+            $wishlist->delete();
+            return response()->json([
+                'success' => true,
+                'action' => 'removed',
+                'message' => 'Đã xóa sản phẩm khỏi wishlist.',
+                'wishlist_count' => $this->wishlistCount($user),
+            ]);
+        }
+
+        Wishlist::query()->create([
             'user_id' => $user->id,
             'product_id' => $product->id,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => $wishlist->wasRecentlyCreated ? 'Da them san pham vao wishlist.' : 'San pham da co trong wishlist.',
+            'action' => 'added',
+            'message' => 'Đã thêm sản phẩm vào wishlist.',
             'wishlist_count' => $this->wishlistCount($user),
         ]);
     }

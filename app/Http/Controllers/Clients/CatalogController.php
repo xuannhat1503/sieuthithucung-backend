@@ -76,6 +76,10 @@ class CatalogController extends Controller
         }
 
         switch ($sort) {
+            case 'default':
+                $query->orderByDesc('created_at')
+                    ->orderByDesc('id');
+                break;
             case 'price_asc':
                 $query->orderBy('price');
                 break;

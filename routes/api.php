@@ -22,7 +22,7 @@ Route::get('/coupon', [CartController::class, 'checkCoupon'])->name('api.cart.co
 Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('api.checkout');
 Route::get('/orders', [CheckoutController::class, 'orders'])->name('api.orders');
 Route::get('/orders/{orderId}', [CheckoutController::class, 'show'])->name('api.orders.show');
-Route::post('/calculate-shipping', [CheckoutController::class, 'calculateShipping'])->name('api.calculate-shipping');
+Route::post('/calculate-shipping', [CheckoutController::class, 'calculateShipping']);
 Route::post('/payments/momo-sim/create', [MomoSimController::class, 'create'])->name('api.momo.create');
 Route::get('/payments/momo-sim/{paymentId}', [MomoSimController::class, 'show'])->name('api.momo.show');
 Route::post('/payments/momo-sim/{paymentId}/complete', [MomoSimController::class, 'complete'])->name('api.momo.complete');

@@ -166,6 +166,56 @@ class ClientCatalogApiTest extends TestCase
             ->assertJsonPath('data.0.primary_image', 'http://localhost/uploads/premium-pate.jpg')
             ->assertJsonPath('data.0.rating_average', 5)
             ->assertJsonPath('data.0.rating_count', 1);
+
+        $priceDescResponse = $this->getJson('/api/products?category=demo-food&sort=price_desc&limit=10');
+
+        $priceDescResponse->assertOk()
+            ->assertJsonPath('data.0.slug', 'premium-pate')
+            ->assertJsonPath('data.1.slug', 'economy-pate');
+
+        $nameAscResponse = $this->getJson('/api/products?category=demo-food&sort=name_asc&limit=10');
+
+        $nameAscResponse->assertOk()
+            ->assertJsonPath('data.0.slug', 'economy-pate')
+            ->assertJsonPath('data.1.slug', 'premium-pate');
+
+        $defaultResponse = $this->getJson('/api/products?category=demo-food&sort=default&limit=10');
+
+        $defaultResponse->assertOk()
+            ->assertJsonPath('meta.per_page', 10);
+    }
+
+    public function test_products_are_paginated_when_total_exceeds_twelve_items(): void
+    {
+        $category = $this->createCategory([
+            'name' => 'Pagination Food',
+            'slug' => 'pagination-food',
+        ]);
+
+        foreach (range(1, 13) as $index) {
+            $this->createProduct($category, [
+                'name' => 'Pagination Product ' . $index,
+                'slug' => 'pagination-product-' . $index,
+                'price' => 100000 + ($index * 1000),
+            ]);
+        }
+
+        $firstPageResponse = $this->getJson('/api/products?category=pagination-food&limit=12&page=1');
+
+        $firstPageResponse->assertOk()
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 12)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('meta.total', 13)
+            ->assertJsonCount(12, 'data');
+
+        $secondPageResponse = $this->getJson('/api/products?category=pagination-food&limit=12&page=2');
+
+        $secondPageResponse->assertOk()
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('meta.total', 13)
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_product_detail_returns_images_reviews_and_related_products(): void

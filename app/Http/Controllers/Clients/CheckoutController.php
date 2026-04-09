@@ -113,24 +113,52 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function calculateShipping(Request $request): JsonResponse
+    public function calculateShipping(Request $request)
     {
-        $payload = $request->validate([
-            'email' => ['required', 'email', 'max:255'],
-            'shipping_address_id' => ['required', 'integer'],
-        ]);
+        $district_id = (int) $request->input('district_id'); 
+        $ward_code = (string) $request->input('ward_code');     
 
-        $user = $this->resolveCustomerByEmail($payload['email']);
-        if (!$user) {
-            return response()->json(['message' => 'Khong tim thay tai khoan khach hang.'], 404);
+        if ($district_id === 0 || empty($ward_code)) {
+            return response()->json(['message' => 'Thiếu thông tin Quận/Huyện hoặc Phường/Xã.'], 400);
         }
 
-        $shippingAddress = $this->resolveCustomerShippingAddress($user, (int) $payload['shipping_address_id']);
-        if (!$shippingAddress) {
-            return response()->json(['message' => 'Khong tim thay dia chi can tinh phi ship.'], 404);
-        }
+        try {
+            $apiUrl = 'https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee';
 
-        return response()->json($this->calculateShippingQuoteForAddress($shippingAddress));
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->withHeaders([
+                    'Token' => '50b713f0-302d-11f1-a5fa-7ec58214c74b', 
+                ])->post($apiUrl, [
+                    'service_type_id' => 2, 
+                    
+                    
+                    'from_district_id' => 1450,
+                    'from_ward_code' => '20804',
+                    
+                    'to_district_id' => $district_id, 
+                    'to_ward_code' => $ward_code,     
+                    'weight' => 1000, 
+                    'length' => 15,
+                    'width' => 15,
+                    'height' => 15
+                ]);
+
+            $ghnData = $response->json();
+
+            if (isset($ghnData['code']) && $ghnData['code'] === 200) {
+                return response()->json([
+                    'shipping_fee' => $ghnData['data']['total'],
+                    'currency' => 'VND',
+                    'provider' => 'GiaoHangNhanh'
+                ]);
+            } else {
+                $errorMsg = isset($ghnData['message']) ? $ghnData['message'] : 'Lỗi từ GHN';
+                return response()->json(['message' => 'GHN từ chối: ' . $errorMsg], 400);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi kết nối: ' . $e->getMessage()], 500);
+        }
     }
 
     public function orders(Request $request): JsonResponse
