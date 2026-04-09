@@ -21,6 +21,46 @@ use function Flasher\Toastr\Prime\toastr;
 
 class AuthController extends Controller
 {
+    protected function ensureDatabaseIsReachable(): ?JsonResponse
+    {
+        try {
+            DB::connection()->getPdo();
+            return null;
+        } catch (\Throwable $exception) {
+            Log::error('Database connection failed during register.', [
+                'error' => $exception->getMessage(),
+                'db_connection' => env('DB_CONNECTION'),
+                'db_host' => env('DB_HOST'),
+                'db_port' => env('DB_PORT'),
+                'db_database' => env('DB_DATABASE'),
+                'db_username' => env('DB_USERNAME'),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Khong ket noi duoc co so du lieu. Vui long kiem tra DB_* tren Railway.',
+            ], 500);
+        }
+    }
+
+    protected function missingMailConfigKeys(): array
+    {
+        $requiredKeys = [
+            'MAIL_MAILER',
+            'MAIL_HOST',
+            'MAIL_PORT',
+            'MAIL_USERNAME',
+            'MAIL_PASSWORD',
+            'MAIL_ENCRYPTION',
+            'MAIL_FROM_ADDRESS',
+            'MAIL_FROM_NAME',
+        ];
+
+        return array_values(array_filter($requiredKeys, static function (string $key): bool {
+            return trim((string) env($key, '')) === '';
+        }));
+    }
+
     protected function buildMailFailurePayload(string $message, \Throwable $exception): array
     {
         $payload = [
@@ -212,6 +252,24 @@ class AuthController extends Controller
 
     public function apiRegister(Request $request): JsonResponse
     {
+        $databaseError = $this->ensureDatabaseIsReachable();
+        if ($databaseError instanceof JsonResponse) {
+            return $databaseError;
+        }
+
+        $missingMailKeys = $this->missingMailConfigKeys();
+        if (!empty($missingMailKeys)) {
+            Log::error('Missing mail configuration keys during register.', [
+                'missing_keys' => $missingMailKeys,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Thieu cau hinh MAIL_* tren Railway.',
+                'missing_keys' => $missingMailKeys,
+            ], 500);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|min:3|max:255',
             'email' => 'required|email|max:255',
