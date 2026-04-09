@@ -21,6 +21,21 @@ use function Flasher\Toastr\Prime\toastr;
 
 class AuthController extends Controller
 {
+    protected function buildMailFailurePayload(string $message, \Throwable $exception): array
+    {
+        $payload = [
+            'success' => false,
+            'message' => $message,
+            'hint' => 'Kiem tra MAIL_* tren Railway (MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS).',
+        ];
+
+        if ((bool) config('app.debug')) {
+            $payload['debug_error'] = $exception->getMessage();
+        }
+
+        return $payload;
+    }
+
     protected function resolveCustomerRoleId(): int
     {
         $existingRole = Role::query()
@@ -224,12 +239,19 @@ class AuthController extends Controller
                         'user_id' => $existingUser->id,
                         'email' => $existingUser->email,
                         'error' => $exception->getMessage(),
+                        'mailer' => env('MAIL_MAILER'),
+                        'mail_host' => env('MAIL_HOST'),
+                        'mail_port' => env('MAIL_PORT'),
+                        'mail_from_address' => env('MAIL_FROM_ADDRESS'),
                     ]);
 
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Tai khoan nay chua kich hoat, nhung gui lai email kich hoat that bai. Vui long thu lai.',
-                    ], 500);
+                    return response()->json(
+                        $this->buildMailFailurePayload(
+                            'Tai khoan nay chua kich hoat, nhung gui lai email kich hoat that bai. Vui long thu lai.',
+                            $exception
+                        ),
+                        500
+                    );
                 }
 
                 return response()->json([
@@ -261,14 +283,21 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $exception->getMessage(),
+                'mailer' => env('MAIL_MAILER'),
+                'mail_host' => env('MAIL_HOST'),
+                'mail_port' => env('MAIL_PORT'),
+                'mail_from_address' => env('MAIL_FROM_ADDRESS'),
             ]);
 
             $user->delete();
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Dang ky chua hoan tat vi khong gui duoc email kich hoat. Vui long thu lai.',
-            ], 500);
+            return response()->json(
+                $this->buildMailFailurePayload(
+                    'Dang ky chua hoan tat vi khong gui duoc email kich hoat. Vui long thu lai.',
+                    $exception
+                ),
+                500
+            );
         }
 
         return response()->json([
