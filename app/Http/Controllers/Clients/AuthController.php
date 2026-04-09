@@ -29,11 +29,11 @@ class AuthController extends Controller
         } catch (\Throwable $exception) {
             Log::error('Database connection failed during register.', [
                 'error' => $exception->getMessage(),
-                'db_connection' => env('DB_CONNECTION'),
-                'db_host' => env('DB_HOST'),
-                'db_port' => env('DB_PORT'),
-                'db_database' => env('DB_DATABASE'),
-                'db_username' => env('DB_USERNAME'),
+                'db_connection' => config('database.default'),
+                'db_host' => config('database.connections.mysql.host'),
+                'db_port' => config('database.connections.mysql.port'),
+                'db_database' => config('database.connections.mysql.database'),
+                'db_username' => config('database.connections.mysql.username'),
             ]);
 
             return response()->json([
@@ -45,20 +45,27 @@ class AuthController extends Controller
 
     protected function missingMailConfigKeys(): array
     {
-        $requiredKeys = [
-            'MAIL_MAILER',
-            'MAIL_HOST',
-            'MAIL_PORT',
-            'MAIL_USERNAME',
-            'MAIL_PASSWORD',
-            'MAIL_ENCRYPTION',
-            'MAIL_FROM_ADDRESS',
-            'MAIL_FROM_NAME',
+        $requiredConfigKeys = [
+            'mail.default' => 'MAIL_MAILER',
+            'mail.mailers.smtp.host' => 'MAIL_HOST',
+            'mail.mailers.smtp.port' => 'MAIL_PORT',
+            'mail.mailers.smtp.username' => 'MAIL_USERNAME',
+            'mail.mailers.smtp.password' => 'MAIL_PASSWORD',
+            'mail.mailers.smtp.encryption' => 'MAIL_ENCRYPTION',
+            'mail.from.address' => 'MAIL_FROM_ADDRESS',
+            'mail.from.name' => 'MAIL_FROM_NAME',
         ];
 
-        return array_values(array_filter($requiredKeys, static function (string $key): bool {
-            return trim((string) env($key, '')) === '';
-        }));
+        $missing = [];
+
+        foreach ($requiredConfigKeys as $configKey => $envName) {
+            $value = config($configKey);
+            if (is_null($value) || trim((string) $value) === '') {
+                $missing[] = $envName;
+            }
+        }
+
+        return $missing;
     }
 
     protected function buildMailFailurePayload(string $message, \Throwable $exception): array
@@ -96,7 +103,7 @@ class AuthController extends Controller
 
     protected function frontendHomeUrl(array $query = []): string
     {
-        $baseUrl = rtrim(env('FRONTEND_URL', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
+        $baseUrl = rtrim((string) config('app.frontend_url', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
         $homeUrl = $baseUrl . '/pages/home.html';
 
         if (!empty($query)) {
@@ -108,7 +115,7 @@ class AuthController extends Controller
 
     protected function frontendLoginUrl(array $query = []): string
     {
-        $baseUrl = rtrim(env('FRONTEND_URL', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
+        $baseUrl = rtrim((string) config('app.frontend_url', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
         $loginUrl = $baseUrl . '/pages/login.html';
 
         if (!empty($query)) {
@@ -125,7 +132,7 @@ class AuthController extends Controller
 
     protected function frontendForgotUrl(array $query = []): string
     {
-        $baseUrl = rtrim(env('FRONTEND_URL', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
+        $baseUrl = rtrim((string) config('app.frontend_url', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
         $forgotUrl = $baseUrl . '/pages/forgot-password.html';
 
         if (!empty($query)) {
@@ -137,7 +144,7 @@ class AuthController extends Controller
 
     protected function frontendResetUrl(array $query = []): string
     {
-        $baseUrl = rtrim(env('FRONTEND_URL', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
+        $baseUrl = rtrim((string) config('app.frontend_url', 'http://localhost/sieuthithucung/sieuthithucung-frontend'), '/');
         $resetUrl = $baseUrl . '/pages/reset-password.html';
 
         if (!empty($query)) {
